@@ -15,6 +15,7 @@ namespace TextEditor
         static void Main()
         {
             // махмел, я пернул
+            // я знаю
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
