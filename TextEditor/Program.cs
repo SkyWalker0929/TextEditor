@@ -14,6 +14,8 @@ namespace TextEditor
         [STAThread]
         static void Main()
         {
+            // махмел, я пернул
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new SourceForm());
