@@ -76,6 +76,7 @@ namespace TextEditor
             }
             else if (extendtionsCategories == ExtendtionsCategories.video)
             {
+                
                 DisableTextFunctions(true);
             }
         }
