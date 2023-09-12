@@ -8,7 +8,7 @@ namespace TextEditor
 {
     public partial class SourceForm : Form
     {
-        string fileName;
+        string fileName = null;
         ExtendtionsLibrary currentExtendtionsLibrary;
         ExtendtionsCategories currentExtendtionCategory = ExtendtionsCategories.none;
 
@@ -78,6 +78,7 @@ namespace TextEditor
             {
                 AxWMPLib.AxWindowsMediaPlayer windowsMediaPlayer = new AxWMPLib.AxWindowsMediaPlayer { Dock = DockStyle.Fill }; 
                 textBox.Controls.Add(windowsMediaPlayer);
+                windowsMediaPlayer.uiMode = "none";
                 windowsMediaPlayer.CreateControl();
                 windowsMediaPlayer.URL = filePath;
                 windowsMediaPlayer.Ctlcontrols.play();
@@ -93,6 +94,11 @@ namespace TextEditor
             сохранитьToolStripMenuItem.Enabled = 
             печатьToolStripMenuItem.Enabled = 
             параметрыПечатиToolStripMenuItem.Enabled = !yon;
+
+            if (fileName != null)
+            {
+                открытьКакToolStripMenuItem.Enabled = true;
+            }
         }
 
         private void сохранитьToolStripMenuItem_Click(object sender, EventArgs e)
@@ -282,6 +288,12 @@ namespace TextEditor
             {
                 currentExtendtionsLibrary = ExtendtionsManager.GetExtendtionsLibraryFromFile($"C:\\Users\\{Environment.UserName}\\PlacNoteConfig.json");
             }
+        }
+
+        private void открытьКакToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            currentExtendtionsLibrary = ExtendtionsManager.RemoveExtendtionFromExtendtionsLibrary(currentExtendtionsLibrary, Path.GetExtension(fileName));
+            ExtendtionsManager.WriteExtendtionsLibraryToFile(currentExtendtionsLibrary, $"C:\\Users\\{Environment.UserName}\\PlacNoteConfig.json");
         }
     }
 }

@@ -10,7 +10,6 @@ using System.Runtime.Remoting.Lifetime;
 namespace TextEditor
 {
     [Serializable]
-    //Джам АЧИ кунееер АЧОНК
     public class ExtendtionsLibrary
     {
         public List<string> pictures { get; set; }
@@ -28,6 +27,16 @@ namespace TextEditor
 
     public class ExtendtionsManager
     {
+        public static ExtendtionsLibrary RemoveExtendtionFromExtendtionsLibrary(ExtendtionsLibrary extendtionsLibrary, string extendtion)
+        {
+            ExtendtionsLibrary _extendtionsLibrary = extendtionsLibrary;
+
+            _extendtionsLibrary.pictures.Remove(extendtion);
+            _extendtionsLibrary.text.Remove(extendtion);
+            _extendtionsLibrary.video.Remove(extendtion);
+
+            return _extendtionsLibrary;
+        }
         public static bool ExtendtionExist(ExtendtionsLibrary extendtionsLibrary, string extendtion)
         {
             foreach (string ext in extendtionsLibrary.pictures)
