@@ -384,7 +384,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip;
             this.Name = "SourceForm";
-            this.Text = "ПлакNote";
+            this.Text = "PlacNote";
             this.Load += new System.EventHandler(this.SourceForm_Load);
             this.menuStrip.ResumeLayout(false);
             this.menuStrip.PerformLayout();

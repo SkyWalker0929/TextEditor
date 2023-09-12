@@ -18,6 +18,7 @@ namespace TextEditor
         }
 
         ExtendtionsCategories extendtionsCategories = ExtendtionsCategories.none;
+        bool done = false;
 
         private void Wait(double seconds)
         {
@@ -32,7 +33,7 @@ namespace TextEditor
         {
             this.ShowDialog();
 
-            while (extendtionsCategories == ExtendtionsCategories.none)
+            while (!done)
             {
                 Wait(0.1);
             }
@@ -43,18 +44,28 @@ namespace TextEditor
         private void button1_Click(object sender, EventArgs e)
         {
             extendtionsCategories = ExtendtionsCategories.text;
+            done = true;
             this.Hide();
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
             extendtionsCategories = ExtendtionsCategories.pictures;
+            done = true;
             this.Hide();
         }
 
         private void button3_Click(object sender, EventArgs e)
         {
             extendtionsCategories = ExtendtionsCategories.video;
+            done = true;
+            this.Hide();
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            extendtionsCategories = ExtendtionsCategories.none;
+            done = true;
             this.Hide();
         }
     }
