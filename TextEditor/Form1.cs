@@ -76,7 +76,11 @@ namespace TextEditor
             }
             else if (extendtionsCategories == ExtendtionsCategories.video)
             {
-                
+                AxWMPLib.AxWindowsMediaPlayer windowsMediaPlayer = new AxWMPLib.AxWindowsMediaPlayer { Dock = DockStyle.Fill }; 
+                textBox.Controls.Add(windowsMediaPlayer);
+                windowsMediaPlayer.CreateControl();
+                windowsMediaPlayer.URL = filePath;
+                windowsMediaPlayer.Ctlcontrols.play();
                 DisableTextFunctions(true);
             }
         }
