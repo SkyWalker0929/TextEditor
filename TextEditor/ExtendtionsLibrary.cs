@@ -10,6 +10,7 @@ using System.Runtime.Remoting.Lifetime;
 namespace TextEditor
 {
     [Serializable]
+    //Джам АЧИ кунееер АЧОНК
     public class ExtendtionsLibrary
     {
         public List<string> pictures { get; set; }
