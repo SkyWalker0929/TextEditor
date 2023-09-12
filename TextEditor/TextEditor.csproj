@@ -84,6 +84,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ExtendtionsLibrary.cs" />
+    <Compile Include="FileAssotiation.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>

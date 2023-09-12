@@ -11,6 +11,7 @@ namespace TextEditor
         string fileName = null;
         ExtendtionsLibrary currentExtendtionsLibrary;
         ExtendtionsCategories currentExtendtionCategory = ExtendtionsCategories.none;
+        AxWMPLib.AxWindowsMediaPlayer windowsMediaPlayer = new AxWMPLib.AxWindowsMediaPlayer { Dock = DockStyle.Fill };
 
         public SourceForm()
         {
@@ -23,9 +24,7 @@ namespace TextEditor
             if (dialog.ShowDialog() == DialogResult.OK)
             {
                 fileName = dialog.FileName;
-                EnableFields(true);
-
-                textBox.Controls.Clear();
+                
                 currentExtendtionsLibrary = ExtendtionsManager.GetExtendtionsLibraryFromFile($"C:\\Users\\{Environment.UserName}\\PlacNoteConfig.json");
                 if (ExtendtionsManager.ExtendtionExist(currentExtendtionsLibrary, Path.GetExtension(dialog.FileName)))
                 {
@@ -34,7 +33,7 @@ namespace TextEditor
                 else
                 {
                     UEM uem = new UEM();
-                    ExtendtionsCategories extendtionsCategory = uem.GetExtendtion();
+                    ExtendtionsCategories extendtionsCategory = uem.GetExtendtion(Path.GetExtension(dialog.FileName));
                     if (extendtionsCategory != ExtendtionsCategories.none)
                     {
                         if (extendtionsCategory == ExtendtionsCategories.pictures)
@@ -61,6 +60,8 @@ namespace TextEditor
 
         public void OpenFile(string filePath)
         {
+            textBox.Controls.Clear();
+            EnableFields(true);
             ExtendtionsCategories extendtionsCategories =
                         ExtendtionsManager.GetCategory(currentExtendtionsLibrary, Path.GetExtension(filePath));
             if (extendtionsCategories == ExtendtionsCategories.pictures)
@@ -76,24 +77,25 @@ namespace TextEditor
             }
             else if (extendtionsCategories == ExtendtionsCategories.video)
             {
-                AxWMPLib.AxWindowsMediaPlayer windowsMediaPlayer = new AxWMPLib.AxWindowsMediaPlayer { Dock = DockStyle.Fill }; 
                 textBox.Controls.Add(windowsMediaPlayer);
-                windowsMediaPlayer.uiMode = "none";
+
                 windowsMediaPlayer.CreateControl();
                 windowsMediaPlayer.URL = filePath;
                 windowsMediaPlayer.Ctlcontrols.play();
                 DisableTextFunctions(true);
             }
+
+            toolStripStatusLabel1.Text = fileName;
         }
 
         public void DisableTextFunctions(bool yon)
         {
-            правкаToolStripMenuItem.Enabled =
-            видToolStripMenuItem.Enabled =
-            форматToolStripMenuItem.Enabled =
-            сохранитьToolStripMenuItem.Enabled = 
-            печатьToolStripMenuItem.Enabled = 
-            параметрыПечатиToolStripMenuItem.Enabled = !yon;
+            правкаToolStripMenuItem.Visible =
+            форматToolStripMenuItem.Visible =
+            сохранитьToolStripMenuItem.Visible = 
+            печатьToolStripMenuItem.Visible = 
+            toolStripSeparator2.Visible =
+            параметрыПечатиToolStripMenuItem.Visible = !yon;
 
             if (fileName != null)
             {
@@ -288,12 +290,41 @@ namespace TextEditor
             {
                 currentExtendtionsLibrary = ExtendtionsManager.GetExtendtionsLibraryFromFile($"C:\\Users\\{Environment.UserName}\\PlacNoteConfig.json");
             }
+            if (Environment.GetCommandLineArgs().Length > 1)
+            {
+                fileName = Environment.GetCommandLineArgs()[1];
+                OpenFile(Environment.GetCommandLineArgs()[1]);
+            }
         }
 
         private void открытьКакToolStripMenuItem_Click(object sender, EventArgs e)
         {
             currentExtendtionsLibrary = ExtendtionsManager.RemoveExtendtionFromExtendtionsLibrary(currentExtendtionsLibrary, Path.GetExtension(fileName));
             ExtendtionsManager.WriteExtendtionsLibraryToFile(currentExtendtionsLibrary, $"C:\\Users\\{Environment.UserName}\\PlacNoteConfig.json");
+        }
+
+        private void кнопкиWindowsMediaPlayerToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            кнопкиWindowsMediaPlayerToolStripMenuItem.Checked = !кнопкиWindowsMediaPlayerToolStripMenuItem.Checked;
+
+            if (!кнопкиWindowsMediaPlayerToolStripMenuItem.Checked)
+            {
+                windowsMediaPlayer.uiMode = "none";
+            }
+            else
+            {
+                windowsMediaPlayer.uiMode = "full";
+            }
+        }
+
+        private void toolStripStatusLabel1_Click(object sender, EventArgs e)
+        {
+            
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            
         }
     }
 }

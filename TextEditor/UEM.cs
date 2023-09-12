@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -17,6 +18,7 @@ namespace TextEditor
             InitializeComponent();
         }
 
+        string currentExtendtion = null;
         ExtendtionsCategories extendtionsCategories = ExtendtionsCategories.none;
         bool done = false;
 
@@ -29,9 +31,11 @@ namespace TextEditor
             }
         }
 
-        public ExtendtionsCategories GetExtendtion()
+        public ExtendtionsCategories GetExtendtion(string extendtion)
         {
             this.ShowDialog();
+
+            currentExtendtion = extendtion;
 
             while (!done)
             {
@@ -64,9 +68,25 @@ namespace TextEditor
 
         private void button4_Click(object sender, EventArgs e)
         {
-            extendtionsCategories = ExtendtionsCategories.none;
-            done = true;
-            this.Hide();
+            
+        }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkBox1.Enabled)
+            {
+                new FileAssociation().RegisterFileAssociation(currentExtendtion, "PlacNote.File", currentExtendtion, Assembly.GetExecutingAssembly().Location);
+            }
+        }
+
+        private void UEM_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (e.CloseReason == CloseReason.UserClosing)
+            {
+                extendtionsCategories = ExtendtionsCategories.none;
+                done = true;
+                this.Hide();
+            }
         }
     }
 }
