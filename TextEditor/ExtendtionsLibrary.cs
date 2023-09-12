@@ -12,7 +12,6 @@ namespace TextEditor
     [Serializable]
     public class ExtendtionsLibrary
     {
-        // asdasdad
         public List<string> pictures { get; set; }
         public List<string> text { get; set; }
         public List<string> video { get; set; }
