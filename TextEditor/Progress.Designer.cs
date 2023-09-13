@@ -82,6 +82,7 @@
             this.Controls.Add(this.progressBar);
             this.Controls.Add(this.mainLabel);
             this.Name = "Progress";
+            this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Задача в основном потоке";
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();

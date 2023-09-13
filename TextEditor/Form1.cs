@@ -13,11 +13,15 @@ namespace TextEditor
     public partial class SourceForm : Form
     {
         string fileName = null;
+
         ExtendtionsLibrary currentExtendtionsLibrary;
         ExtendtionsCategories currentExtendtionCategory = ExtendtionsCategories.none;
+
         AxWMPLib.AxWindowsMediaPlayer windowsMediaPlayer = new AxWMPLib.AxWindowsMediaPlayer { Dock = DockStyle.Fill };
         PictureBox pictureBox = new PictureBox();
+
         WebBrowser archiveExplorer = new WebBrowser();
+        string archiveFolder = null;
 
         public SourceForm()
         {
@@ -125,6 +129,7 @@ namespace TextEditor
                 }
                 catch { }
 
+                archiveFolder = archiveDirectory;
                 progress.progressBar.Value = 100;
                 progress.Hide();
                 progress.Dispose();
@@ -401,6 +406,44 @@ namespace TextEditor
         private void centerImageToolStripMenuItem_Click(object sender, EventArgs e)
         {
             pictureBox.SizeMode = PictureBoxSizeMode.CenterImage;
+        }
+
+        private async void clearTEMPAndExitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var dr = MessageBox.Show("Delete temporary folder before exiting?", "Exiting ArchiveExplorer", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning);
+
+            if (dr == DialogResult.Cancel)
+            {
+                return;
+            }
+
+            if (dr == DialogResult.Yes)
+            {
+                Progress progress = new Progress { TopMost = true };
+                progress.mainLabel.Text = "Deleting temporary files...";
+                progress.progressBar.Visible = false;
+                progress.percentLabel.Visible = false;
+                progress.Show();
+                progress.Refresh();
+
+                await Task.Run(() => {
+                    Directory.Delete(archiveFolder, true);
+                });
+
+                progress.Hide();
+                progress.Dispose();
+            }
+
+            ExitFile();
+        }
+
+        void ExitFile()
+        {
+            DisableTextFunctions(true);
+            archiveExplorerToolStripMenuItem.Visible = false;
+            textBox.Controls.Clear();
+            fileName = null;
+            toolStripStatusLabel1.Text = "Файл не выбран";
         }
     }
 }
