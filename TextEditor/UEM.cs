@@ -88,5 +88,12 @@ namespace TextEditor
                 this.Hide();
             }
         }
+
+        private void button4_Click_1(object sender, EventArgs e)
+        {
+            extendtionsCategories = ExtendtionsCategories.archive;
+            done = true;
+            this.Hide();
+        }
     }
 }

@@ -15,6 +15,7 @@ namespace TextEditor
         public List<string> pictures { get; set; }
         public List<string> text { get; set; }
         public List<string> video { get; set; }
+        public List<string> archive { get; set; }
     }
 
     public enum ExtendtionsCategories
@@ -22,6 +23,7 @@ namespace TextEditor
         pictures,
         text,
         video,
+        archive,
         none
     }
 
@@ -54,6 +56,11 @@ namespace TextEditor
                 if (ext.Contains(extendtion)) return true;
             }
 
+            foreach (string ext in extendtionsLibrary.archive)
+            {
+                if (ext.Contains(extendtion)) return true;
+            }
+
             return false;
 
             //return (extendtionsLibrary.pictures.Contains(extendtion)
@@ -71,6 +78,9 @@ namespace TextEditor
 
             if (extendtionsLibrary.video.Contains(extention))
                 return ExtendtionsCategories.video;
+
+            if (extendtionsLibrary.archive.Contains(extention))
+                return ExtendtionsCategories.archive;
 
             return ExtendtionsCategories.none;
         }

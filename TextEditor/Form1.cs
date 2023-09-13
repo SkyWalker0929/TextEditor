@@ -2,7 +2,11 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.IO.Compression;
+using System.Threading.Tasks;
 using System.Windows.Forms;
+using SharpCompress;
+using SharpCompress.Archives;
 
 namespace TextEditor
 {
@@ -12,6 +16,8 @@ namespace TextEditor
         ExtendtionsLibrary currentExtendtionsLibrary;
         ExtendtionsCategories currentExtendtionCategory = ExtendtionsCategories.none;
         AxWMPLib.AxWindowsMediaPlayer windowsMediaPlayer = new AxWMPLib.AxWindowsMediaPlayer { Dock = DockStyle.Fill };
+        PictureBox pictureBox = new PictureBox();
+        WebBrowser archiveExplorer = new WebBrowser();
 
         public SourceForm()
         {
@@ -48,6 +54,10 @@ namespace TextEditor
                         {
                             currentExtendtionsLibrary.video.Add(Path.GetExtension(dialog.FileName));
                         }
+                        else if (extendtionsCategory == ExtendtionsCategories.archive)
+                        {
+                            currentExtendtionsLibrary.archive.Add(Path.GetExtension(dialog.FileName));
+                        }
                     }
                     uem.Dispose();
 
@@ -58,16 +68,19 @@ namespace TextEditor
             }
         }
 
-        public void OpenFile(string filePath)
+        public async void OpenFile(string filePath)
         {
+            archiveExplorerToolStripMenuItem.Visible = false;
             textBox.Controls.Clear();
             EnableFields(true);
             ExtendtionsCategories extendtionsCategories =
                         ExtendtionsManager.GetCategory(currentExtendtionsLibrary, Path.GetExtension(filePath));
             if (extendtionsCategories == ExtendtionsCategories.pictures)
             {
-                PictureBox pictureBox = new PictureBox { ErrorImage = Properties.Resources.logo, InitialImage = Properties.Resources.logo, BackColor = Color.Black, Dock = DockStyle.Fill, ImageLocation = filePath, SizeMode = PictureBoxSizeMode.Zoom, Cursor = DefaultCursor };
+                pictureBox = new PictureBox { ErrorImage = Properties.Resources.logo, InitialImage = Properties.Resources.logo, BackColor = Color.Transparent, Dock = DockStyle.Fill, SizeMode = PictureBoxSizeMode.Zoom, Cursor = DefaultCursor };
+
                 textBox.Controls.Add(pictureBox);
+                pictureBox.ImageLocation = filePath;
                 DisableTextFunctions(true);
             }
             else if (extendtionsCategories == ExtendtionsCategories.text)
@@ -83,6 +96,38 @@ namespace TextEditor
                 windowsMediaPlayer.URL = filePath;
                 windowsMediaPlayer.Ctlcontrols.play();
                 DisableTextFunctions(true);
+            }
+            else if (extendtionsCategories == ExtendtionsCategories.archive)
+            {
+                DisableTextFunctions(true);
+
+                string archiveDirectory = $"{Path.GetTempPath()}pnfile.{new Random().Next(1000000, 9999999)}";
+                Directory.CreateDirectory(archiveDirectory);
+
+                archiveExplorer = new WebBrowser { Dock = DockStyle.Fill };
+                archiveExplorer.Navigate(archiveDirectory);
+                textBox.Controls.Add(archiveExplorer);
+
+                Progress progress = new Progress { TopMost = true };
+                progress.mainLabel.Text = "Подготовка архива для быстрого редактирования...";
+                progress.progressBar.Visible = false;
+                progress.percentLabel.Visible = false;
+                progress.Show();
+                progress.Refresh();
+
+                archiveExplorerToolStripMenuItem.Visible = true;
+
+                try
+                {
+                    await Task.Run(() => {
+                        SharpCompress.Archives.ArchiveFactory.WriteToDirectory(filePath, archiveDirectory, new SharpCompress.Common.ExtractionOptions { Overwrite = true, ExtractFullPath = true, PreserveFileTime = true });
+                    });
+                }
+                catch { }
+
+                progress.progressBar.Value = 100;
+                progress.Hide();
+                progress.Dispose();
             }
 
             toolStripStatusLabel1.Text = fileName;
@@ -280,7 +325,8 @@ namespace TextEditor
 
                     pictures = new List<string>(),
                     text = new List<string>(),
-                    video = new List<string>()
+                    video = new List<string>(),
+                    archive = new List<string>(),
 
                 };
                 ExtendtionsManager.WriteExtendtionsLibraryToFile(extendtionsLibrary, $"C:\\Users\\{Environment.UserName}\\PlacNoteConfig.json");
@@ -325,6 +371,36 @@ namespace TextEditor
         private void timer1_Tick(object sender, EventArgs e)
         {
             
+        }
+
+        private void toolStripMenuItem3_Click(object sender, EventArgs e)
+        {
+            archiveExplorer.GoBack();
+        }
+
+        private void forwardToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            archiveExplorer.GoForward();
+        }
+
+        private void refreshToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            archiveExplorer.Refresh();
+        }
+
+        private void zoomToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            pictureBox.SizeMode = PictureBoxSizeMode.Normal;
+        }
+
+        private void zoomToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            pictureBox.SizeMode = PictureBoxSizeMode.Zoom;
+        }
+
+        private void centerImageToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            pictureBox.SizeMode = PictureBoxSizeMode.CenterImage;
         }
     }
 }
