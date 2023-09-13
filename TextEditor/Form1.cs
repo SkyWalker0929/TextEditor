@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.IO.Compression;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -95,11 +97,16 @@ namespace TextEditor
 
                 textBox.Controls.Add(pictureBox);
                 pictureBox.ImageLocation = filePath;
+                pictureBox.LoadCompleted += PictureBox_LoadCompleted;
+
                 DisableTextFunctions(true);
             }
             else if (extendtionsCategories == ExtendtionsCategories.text)
             {
                 textBox.Text = File.ReadAllText(fileName);
+
+                toolStripStatusLabel2.Text = $"-CC:{textBox.Text.Length}-S:{new System.IO.FileInfo(filePath).Length}B";
+
                 DisableTextFunctions(false);
             }
             else if (extendtionsCategories == ExtendtionsCategories.video)
@@ -109,6 +116,8 @@ namespace TextEditor
                 windowsMediaPlayer.CreateControl();
                 windowsMediaPlayer.URL = filePath;
                 windowsMediaPlayer.Ctlcontrols.play();
+                windowsMediaPlayer.StatusChange += WindowsMediaPlayer_StatusChange;
+
                 DisableTextFunctions(true);
             }
             else if (extendtionsCategories == ExtendtionsCategories.archive)
@@ -139,6 +148,8 @@ namespace TextEditor
                 }
                 catch { }
 
+                toolStripStatusLabel2.Text = $"-S:{new System.IO.FileInfo(filePath).Length}B";
+
                 archiveFolder = archiveDirectory;
                 progress.progressBar.Value = 100;
                 progress.Hide();
@@ -146,6 +157,16 @@ namespace TextEditor
             }
 
             toolStripStatusLabel1.Text = fileName;
+        }
+
+        private void WindowsMediaPlayer_StatusChange(object sender, EventArgs e)
+        {
+            toolStripStatusLabel2.Text = $"-ST:{windowsMediaPlayer.status}-S:{new System.IO.FileInfo(fileName).Length}";
+        }
+
+        private void PictureBox_LoadCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
+        {
+            toolStripStatusLabel2.Text = $"{pictureBox.Image.Width}x{pictureBox.Image.Height}@-PF:{pictureBox.Image.PixelFormat}-RF:{pictureBox.Image.RawFormat}";
         }
 
         public void DisableTextFunctions(bool yon)
@@ -210,8 +231,7 @@ namespace TextEditor
 
         private void новоеОкноToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Form form = new SourceForm();
-            form.Show();
+            Process.Start(Assembly.GetExecutingAssembly().Location);
         }
 
         private void выходToolStripMenuItem_Click(object sender, EventArgs e)
@@ -357,6 +377,10 @@ namespace TextEditor
                 fileName = Environment.GetCommandLineArgs()[1];
                 OpenFileAndCheckExtensionRegistration(Environment.GetCommandLineArgs()[1]);
             }
+            this.Show();
+
+            textBox.BackColor = Color.FromArgb(150, 150, 255);
+            FadeOutAnimaton();
         }
 
         private void открытьКакToolStripMenuItem_Click(object sender, EventArgs e)
@@ -450,7 +474,14 @@ namespace TextEditor
 
         void ExitFile()
         {
+            try
+            {
+                windowsMediaPlayer.Ctlcontrols.stop();
+            }
+            catch { }
+
             DisableTextFunctions(true);
+            toolStripStatusLabel2.Text = "0x0";
             archiveExplorerToolStripMenuItem.Visible = false;
             textBox.Text = null;
             textBox.Controls.Clear();
@@ -469,6 +500,14 @@ namespace TextEditor
 
             ExitFile();
             OpenFileAndCheckExtensionRegistration(fileList[0]);
+
+            if (fileList.Length > 1)
+            {
+                for (int i = 1; i < fileList.Length; i++)
+                {
+                    Process.Start(Assembly.GetExecutingAssembly().Location, $"\"{fileList[i]}\"");
+                }
+            }
 
             FadeOutAnimaton();
         }
@@ -498,7 +537,7 @@ namespace TextEditor
         {
             await Task.Run(() => {
                 int localAnimationID = animationID = new Random().Next(1000000, 9999999);
-                for (int i = textBox.BackColor.R; animationID == localAnimationID && i > 150; i -= 5)
+                for (int i = textBox.BackColor.R; animationID == localAnimationID && i >= 150; i -= 5)
                 {
                     textBox.BackColor = Color.FromArgb(i, i, 255);
                     Wait(0.001);
@@ -511,7 +550,7 @@ namespace TextEditor
         {
             await Task.Run(() => {
                 int localAnimationID = animationID = new Random().Next(1000000, 9999999);
-                for (int i = textBox.BackColor.R; animationID == localAnimationID && i < 255; i += 5)
+                for (int i = textBox.BackColor.R; animationID == localAnimationID && i <= 255; i += 5)
                 {
                     textBox.BackColor = Color.FromArgb(i, i, 255);
                     Wait(0.001);
