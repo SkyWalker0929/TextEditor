@@ -123,6 +123,7 @@ namespace TextEditor
             else if (extendtionsCategories == ExtendtionsCategories.archive)
             {
                 DisableTextFunctions(true);
+                clearTEMPAndExitToolStripMenuItem.Enabled = false;
 
                 string archiveDirectory = $"{Path.GetTempPath()}pnfile.{new Random().Next(1000000, 9999999)}";
                 Directory.CreateDirectory(archiveDirectory);
@@ -150,6 +151,7 @@ namespace TextEditor
 
                 toolStripStatusLabel2.Text = $"-S:{new System.IO.FileInfo(filePath).Length}B";
 
+                clearTEMPAndExitToolStripMenuItem.Enabled = true;
                 archiveFolder = archiveDirectory;
                 progress.progressBar.Value = 100;
                 progress.Hide();
@@ -304,6 +306,7 @@ namespace TextEditor
         private void шрифтToolStripMenuItem_Click(object sender, EventArgs e)
         {
             FontDialog fontDialog = new FontDialog();
+            fontDialog.Font = textBox.Font;
             if (fontDialog.ShowDialog() == DialogResult.OK)
             {
                 textBox.Font = fontDialog.Font;
@@ -557,6 +560,22 @@ namespace TextEditor
                     this.Refresh();
                 }
             });
+        }
+
+        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Progress progress = new Progress { TopMost = true };
+            progress.mainLabel.Text = "Сохранение архива...";
+            progress.progressBar.Visible = false;
+            progress.percentLabel.Visible = false;
+            progress.Show();
+            progress.Refresh();
+
+            File.Delete(fileName);
+            ZipFile.CreateFromDirectory(archiveFolder, fileName);
+
+            progress.Hide();
+            progress.Dispose();
         }
     }
 }

@@ -81,6 +81,7 @@
             this.Controls.Add(this.percentLabel);
             this.Controls.Add(this.progressBar);
             this.Controls.Add(this.mainLabel);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Name = "Progress";
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;

@@ -161,6 +161,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="icons8-цвет-текста-96.ico" />
+    <None Include="Resources\icons8-сохранить-100.png" />
     <None Include="Resources\icons8-обновить-100.png" />
     <None Include="Resources\icons8-вперед-100.png" />
     <None Include="Resources\icons8-назад-100.png" />

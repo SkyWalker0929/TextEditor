@@ -76,13 +76,14 @@
             this.zoomToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.zoomToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.centerImageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripMenuItem();
-            this.forwardToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.refreshToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
             this.clearTEMPAndExitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.выходИзФайлаToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripStatusLabel2 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripMenuItem();
+            this.forwardToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.refreshToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -434,6 +435,7 @@
             this.toolStripMenuItem3,
             this.forwardToolStripMenuItem,
             this.refreshToolStripMenuItem,
+            this.saveToolStripMenuItem,
             this.toolStripSeparator5,
             this.clearTEMPAndExitToolStripMenuItem});
             this.archiveExplorerToolStripMenuItem.ForeColor = System.Drawing.Color.Blue;
@@ -475,6 +477,35 @@
             this.centerImageToolStripMenuItem.Text = "CenterImage";
             this.centerImageToolStripMenuItem.Click += new System.EventHandler(this.centerImageToolStripMenuItem_Click);
             // 
+            // toolStripSeparator5
+            // 
+            this.toolStripSeparator5.Name = "toolStripSeparator5";
+            this.toolStripSeparator5.Size = new System.Drawing.Size(177, 6);
+            // 
+            // clearTEMPAndExitToolStripMenuItem
+            // 
+            this.clearTEMPAndExitToolStripMenuItem.Enabled = false;
+            this.clearTEMPAndExitToolStripMenuItem.ForeColor = System.Drawing.Color.Red;
+            this.clearTEMPAndExitToolStripMenuItem.Name = "clearTEMPAndExitToolStripMenuItem";
+            this.clearTEMPAndExitToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.clearTEMPAndExitToolStripMenuItem.Text = "Exit";
+            this.clearTEMPAndExitToolStripMenuItem.Click += new System.EventHandler(this.clearTEMPAndExitToolStripMenuItem_Click);
+            // 
+            // выходИзФайлаToolStripMenuItem
+            // 
+            this.выходИзФайлаToolStripMenuItem.Name = "выходИзФайлаToolStripMenuItem";
+            this.выходИзФайлаToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
+            this.выходИзФайлаToolStripMenuItem.Text = "Выход из файла";
+            this.выходИзФайлаToolStripMenuItem.Click += new System.EventHandler(this.выходИзФайлаToolStripMenuItem_Click);
+            // 
+            // toolStripStatusLabel2
+            // 
+            this.toolStripStatusLabel2.ForeColor = System.Drawing.Color.Blue;
+            this.toolStripStatusLabel2.Name = "toolStripStatusLabel2";
+            this.toolStripStatusLabel2.Size = new System.Drawing.Size(25, 17);
+            this.toolStripStatusLabel2.Text = "0x0";
+            this.toolStripStatusLabel2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
             // toolStripMenuItem3
             // 
             this.toolStripMenuItem3.Image = global::TextEditor.Properties.Resources.icons8_назад_100;
@@ -499,33 +530,13 @@
             this.refreshToolStripMenuItem.Text = "Refresh";
             this.refreshToolStripMenuItem.Click += new System.EventHandler(this.refreshToolStripMenuItem_Click);
             // 
-            // toolStripSeparator5
+            // saveToolStripMenuItem
             // 
-            this.toolStripSeparator5.Name = "toolStripSeparator5";
-            this.toolStripSeparator5.Size = new System.Drawing.Size(177, 6);
-            // 
-            // clearTEMPAndExitToolStripMenuItem
-            // 
-            this.clearTEMPAndExitToolStripMenuItem.ForeColor = System.Drawing.Color.Red;
-            this.clearTEMPAndExitToolStripMenuItem.Name = "clearTEMPAndExitToolStripMenuItem";
-            this.clearTEMPAndExitToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.clearTEMPAndExitToolStripMenuItem.Text = "Exit";
-            this.clearTEMPAndExitToolStripMenuItem.Click += new System.EventHandler(this.clearTEMPAndExitToolStripMenuItem_Click);
-            // 
-            // выходИзФайлаToolStripMenuItem
-            // 
-            this.выходИзФайлаToolStripMenuItem.Name = "выходИзФайлаToolStripMenuItem";
-            this.выходИзФайлаToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
-            this.выходИзФайлаToolStripMenuItem.Text = "Выход из файла";
-            this.выходИзФайлаToolStripMenuItem.Click += new System.EventHandler(this.выходИзФайлаToolStripMenuItem_Click);
-            // 
-            // toolStripStatusLabel2
-            // 
-            this.toolStripStatusLabel2.ForeColor = System.Drawing.Color.Blue;
-            this.toolStripStatusLabel2.Name = "toolStripStatusLabel2";
-            this.toolStripStatusLabel2.Size = new System.Drawing.Size(25, 17);
-            this.toolStripStatusLabel2.Text = "0x0";
-            this.toolStripStatusLabel2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.saveToolStripMenuItem.Image = global::TextEditor.Properties.Resources.icons8_сохранить_100;
+            this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveToolStripMenuItem.Text = "Save";
+            this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
             // SourceForm
             // 
@@ -605,6 +616,7 @@
         private System.Windows.Forms.ToolStripMenuItem clearTEMPAndExitToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem выходИзФайлаToolStripMenuItem;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel2;
+        private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
     }
 }
 
