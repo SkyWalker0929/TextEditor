@@ -395,9 +395,9 @@
             this.textBox.Name = "textBox";
             this.textBox.Size = new System.Drawing.Size(800, 404);
             this.textBox.TabIndex = 1;
-            this.textBox.DragDrop += new System.Windows.Forms.DragEventHandler(this.textBox_DragDrop);
-            this.textBox.DragEnter += new System.Windows.Forms.DragEventHandler(this.textBox_DragEnter);
-            this.textBox.DragLeave += new System.EventHandler(this.textBox_DragLeave);
+            this.textBox.DragDrop += new System.Windows.Forms.DragEventHandler(this.FDragDrop);
+            this.textBox.DragEnter += new System.Windows.Forms.DragEventHandler(this.FDragEnter);
+            this.textBox.DragLeave += new System.EventHandler(this.FDragLeave);
             // 
             // toolStripMenuItem1
             // 

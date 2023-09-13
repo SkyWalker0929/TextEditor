@@ -3,10 +3,14 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.IO.Compression;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using SharpCompress;
 using SharpCompress.Archives;
+using SharpCompress.Common;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.ProgressBar;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 
 namespace TextEditor
 {
@@ -33,42 +37,47 @@ namespace TextEditor
             OpenFileDialog dialog = new OpenFileDialog();
             if (dialog.ShowDialog() == DialogResult.OK)
             {
-                fileName = dialog.FileName;
-                
-                currentExtendtionsLibrary = ExtendtionsManager.GetExtendtionsLibraryFromFile($"C:\\Users\\{Environment.UserName}\\PlacNoteConfig.json");
-                if (ExtendtionsManager.ExtendtionExist(currentExtendtionsLibrary, Path.GetExtension(dialog.FileName)))
+                OpenFileAndCheckExtensionRegistration(dialog.FileName);
+            }
+        }
+
+        public void OpenFileAndCheckExtensionRegistration(string filePath)
+        {
+            fileName = filePath;
+
+            currentExtendtionsLibrary = ExtendtionsManager.GetExtendtionsLibraryFromFile($"C:\\Users\\{Environment.UserName}\\PlacNoteConfig.json");
+            if (ExtendtionsManager.ExtendtionExist(currentExtendtionsLibrary, Path.GetExtension(filePath)))
+            {
+                OpenFile(fileName);
+            }
+            else
+            {
+                UEM uem = new UEM();
+                ExtendtionsCategories extendtionsCategory = uem.GetExtendtion(Path.GetExtension(filePath));
+                if (extendtionsCategory != ExtendtionsCategories.none)
                 {
-                    OpenFile(fileName);
-                }
-                else
-                {
-                    UEM uem = new UEM();
-                    ExtendtionsCategories extendtionsCategory = uem.GetExtendtion(Path.GetExtension(dialog.FileName));
-                    if (extendtionsCategory != ExtendtionsCategories.none)
+                    if (extendtionsCategory == ExtendtionsCategories.pictures)
                     {
-                        if (extendtionsCategory == ExtendtionsCategories.pictures)
-                        {
-                            currentExtendtionsLibrary.pictures.Add(Path.GetExtension(dialog.FileName));
-                        }
-                        else if (extendtionsCategory == ExtendtionsCategories.text)
-                        {
-                            currentExtendtionsLibrary.text.Add(Path.GetExtension(dialog.FileName));
-                        }
-                        else if (extendtionsCategory == ExtendtionsCategories.video)
-                        {
-                            currentExtendtionsLibrary.video.Add(Path.GetExtension(dialog.FileName));
-                        }
-                        else if (extendtionsCategory == ExtendtionsCategories.archive)
-                        {
-                            currentExtendtionsLibrary.archive.Add(Path.GetExtension(dialog.FileName));
-                        }
+                        currentExtendtionsLibrary.pictures.Add(Path.GetExtension(filePath));
                     }
-                    uem.Dispose();
-
-                    ExtendtionsManager.WriteExtendtionsLibraryToFile(currentExtendtionsLibrary, $"C:\\Users\\{Environment.UserName}\\PlacNoteConfig.json");
-
-                    OpenFile(fileName);
+                    else if (extendtionsCategory == ExtendtionsCategories.text)
+                    {
+                        currentExtendtionsLibrary.text.Add(Path.GetExtension(filePath));
+                    }
+                    else if (extendtionsCategory == ExtendtionsCategories.video)
+                    {
+                        currentExtendtionsLibrary.video.Add(Path.GetExtension(filePath));
+                    }
+                    else if (extendtionsCategory == ExtendtionsCategories.archive)
+                    {
+                        currentExtendtionsLibrary.archive.Add(Path.GetExtension(filePath));
+                    }
                 }
+                uem.Dispose();
+
+                ExtendtionsManager.WriteExtendtionsLibraryToFile(currentExtendtionsLibrary, $"C:\\Users\\{Environment.UserName}\\PlacNoteConfig.json");
+
+                OpenFile(fileName);
             }
         }
 
@@ -342,10 +351,11 @@ namespace TextEditor
             {
                 currentExtendtionsLibrary = ExtendtionsManager.GetExtendtionsLibraryFromFile($"C:\\Users\\{Environment.UserName}\\PlacNoteConfig.json");
             }
+
             if (Environment.GetCommandLineArgs().Length > 1)
             {
                 fileName = Environment.GetCommandLineArgs()[1];
-                OpenFile(Environment.GetCommandLineArgs()[1]);
+                OpenFileAndCheckExtensionRegistration(Environment.GetCommandLineArgs()[1]);
             }
         }
 
@@ -448,27 +458,66 @@ namespace TextEditor
             toolStripStatusLabel1.Text = "Файл не выбран";
         }
 
-        private void textBox_DragEnter(object sender, DragEventArgs e)
+        private void выходИзФайлаToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            e.Effect = DragDropEffects.Copy;
+            ExitFile();
         }
 
-        private void textBox_DragLeave(object sender, EventArgs e)
-        {
-            
-        }
-
-        private void textBox_DragDrop(object sender, DragEventArgs e)
+        private void FDragDrop(object sender, DragEventArgs e)
         {
             string[] fileList = (string[])e.Data.GetData(DataFormats.FileDrop, false);
 
             ExitFile();
-            OpenFile(fileList[0]);
+            OpenFileAndCheckExtensionRegistration(fileList[0]);
+
+            FadeOutAnimaton();
         }
 
-        private void выходИзФайлаToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void FDragEnter(object sender, DragEventArgs e)
         {
-            ExitFile();
+            e.Effect = DragDropEffects.Copy;
+
+            FadeInAnimaton();
+        }
+
+        private async void FDragLeave(object sender, EventArgs e)
+        {
+            FadeOutAnimaton();
+        }
+        private void Wait(double seconds)
+        {
+            int ticks = System.Environment.TickCount + (int)Math.Round(seconds * 1000.0);
+            while (System.Environment.TickCount < ticks)
+            {
+                Application.DoEvents();
+            }
+        }
+
+        int animationID = 0;
+        public async void FadeInAnimaton()
+        {
+            await Task.Run(() => {
+                int localAnimationID = animationID = new Random().Next(1000000, 9999999);
+                for (int i = textBox.BackColor.R; animationID == localAnimationID && i > 150; i -= 5)
+                {
+                    textBox.BackColor = Color.FromArgb(i, i, 255);
+                    Wait(0.001);
+                    this.Refresh();
+                }
+            });
+        }
+
+        public async void FadeOutAnimaton()
+        {
+            await Task.Run(() => {
+                int localAnimationID = animationID = new Random().Next(1000000, 9999999);
+                for (int i = textBox.BackColor.R; animationID == localAnimationID && i < 255; i += 5)
+                {
+                    textBox.BackColor = Color.FromArgb(i, i, 255);
+                    Wait(0.001);
+                    this.Refresh();
+                }
+            });
         }
     }
 }
