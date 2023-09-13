@@ -81,6 +81,7 @@
             this.refreshToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
             this.clearTEMPAndExitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.выходИзФайлаToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -118,6 +119,7 @@
             this.параметрыПечатиToolStripMenuItem,
             this.печатьToolStripMenuItem,
             this.toolStripSeparator1,
+            this.выходИзФайлаToolStripMenuItem,
             this.выходToolStripMenuItem});
             this.файлToolStripMenuItem.Name = "файлToolStripMenuItem";
             this.файлToolStripMenuItem.Size = new System.Drawing.Size(48, 20);
@@ -393,6 +395,9 @@
             this.textBox.Name = "textBox";
             this.textBox.Size = new System.Drawing.Size(800, 404);
             this.textBox.TabIndex = 1;
+            this.textBox.DragDrop += new System.Windows.Forms.DragEventHandler(this.textBox_DragDrop);
+            this.textBox.DragEnter += new System.Windows.Forms.DragEventHandler(this.textBox_DragEnter);
+            this.textBox.DragLeave += new System.EventHandler(this.textBox_DragLeave);
             // 
             // toolStripMenuItem1
             // 
@@ -505,6 +510,13 @@
             this.clearTEMPAndExitToolStripMenuItem.Text = "Exit";
             this.clearTEMPAndExitToolStripMenuItem.Click += new System.EventHandler(this.clearTEMPAndExitToolStripMenuItem_Click);
             // 
+            // выходИзФайлаToolStripMenuItem
+            // 
+            this.выходИзФайлаToolStripMenuItem.Name = "выходИзФайлаToolStripMenuItem";
+            this.выходИзФайлаToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
+            this.выходИзФайлаToolStripMenuItem.Text = "Выход из файла";
+            this.выходИзФайлаToolStripMenuItem.Click += new System.EventHandler(this.выходИзФайлаToolStripMenuItem_Click);
+            // 
             // SourceForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -581,6 +593,7 @@
         private System.Windows.Forms.ToolStripMenuItem centerImageToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
         private System.Windows.Forms.ToolStripMenuItem clearTEMPAndExitToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem выходИзФайлаToolStripMenuItem;
     }
 }
 

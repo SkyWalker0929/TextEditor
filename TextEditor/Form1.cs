@@ -74,6 +74,7 @@ namespace TextEditor
 
         public async void OpenFile(string filePath)
         {
+            fileName = filePath;
             archiveExplorerToolStripMenuItem.Visible = false;
             textBox.Controls.Clear();
             EnableFields(true);
@@ -441,9 +442,33 @@ namespace TextEditor
         {
             DisableTextFunctions(true);
             archiveExplorerToolStripMenuItem.Visible = false;
+            textBox.Text = null;
             textBox.Controls.Clear();
             fileName = null;
             toolStripStatusLabel1.Text = "Файл не выбран";
+        }
+
+        private void textBox_DragEnter(object sender, DragEventArgs e)
+        {
+            e.Effect = DragDropEffects.Copy;
+        }
+
+        private void textBox_DragLeave(object sender, EventArgs e)
+        {
+            
+        }
+
+        private void textBox_DragDrop(object sender, DragEventArgs e)
+        {
+            string[] fileList = (string[])e.Data.GetData(DataFormats.FileDrop, false);
+
+            ExitFile();
+            OpenFile(fileList[0]);
+        }
+
+        private void выходИзФайлаToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ExitFile();
         }
     }
 }
