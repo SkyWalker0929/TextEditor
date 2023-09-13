@@ -147,7 +147,10 @@ namespace TextEditor
                         SharpCompress.Archives.ArchiveFactory.WriteToDirectory(filePath, archiveDirectory, new SharpCompress.Common.ExtractionOptions { Overwrite = true, ExtractFullPath = true, PreserveFileTime = true });
                     });
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Во время инициализации произошла ошибка: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
 
                 toolStripStatusLabel2.Text = $"-S:{new System.IO.FileInfo(filePath).Length}B";
 
