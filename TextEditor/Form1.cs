@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using AxWMPLib;
 using SharpCompress.Common;
+using static System.Net.Mime.MediaTypeNames;
+using Application = System.Windows.Forms.Application;
 
 namespace TextEditor
 {
@@ -815,7 +817,7 @@ namespace TextEditor
 
         private void SourceForm_KeyDown(object sender, KeyEventArgs e)
         {
-
+            
         }
 
         private void SourceForm_KeyUp(object sender, KeyEventArgs e)
@@ -834,6 +836,45 @@ namespace TextEditor
         private void анимацияPictureBoxToolStripMenuItem_Click(object sender, EventArgs e)
         {
             ((ToolStripMenuItem)sender).Checked = !((ToolStripMenuItem)sender).Checked;
+        }
+
+        private void panel1_MouseDown(object sender, MouseEventArgs e)
+        {
+            
+        }
+
+        private void средстваToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            currentExtensionLibrary = ExtensionManager.GetExtensionLibraryFromFile($"C:\\Users\\{Environment.UserName}\\PlacNoteConfig.json");
+
+            текстToolStripMenuItem.DropDownItems.Clear();
+            foreach (string ext in currentExtensionLibrary.text)
+            {
+                текстToolStripMenuItem.DropDownItems.Add(ext).Tag = ext;
+            }
+
+            изображенияToolStripMenuItem.DropDownItems.Clear();
+            foreach (string ext in currentExtensionLibrary.pictures)
+            {
+                изображенияToolStripMenuItem.DropDownItems.Add(ext).Tag = ext;
+            }
+
+            видеоToolStripMenuItem.DropDownItems.Clear();
+            foreach (string ext in currentExtensionLibrary.archive)
+            {
+                видеоToolStripMenuItem.DropDownItems.Add(ext).Tag = ext;
+            }
+
+            прочееМедиаToolStripMenuItem.DropDownItems.Clear();
+            foreach (string ext in currentExtensionLibrary.video)
+            {
+                прочееМедиаToolStripMenuItem.DropDownItems.Add(ext).Tag = ext;
+            }
+        }
+
+        private void модыToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Program.modsManager.ShowDialog();
         }
     }
 }

@@ -13,6 +13,7 @@ namespace TextEditor
     internal static class Program
     {
         public static DebugLog debugLog = null;
+        public static Mods modsManager = null;
 
         /// <summary>
         /// Главная точка входа для приложения.
@@ -28,6 +29,7 @@ namespace TextEditor
                 Application.SetCompatibleTextRenderingDefault(false);
 
                 debugLog = new DebugLog();
+                modsManager = new Mods();
 
                 Application.Run(new SourceForm());
             }
