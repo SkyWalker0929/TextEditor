@@ -14,16 +14,6 @@ namespace TextEditor
 {
     public partial class SourceForm : Form
     {
-        protected override CreateParams CreateParams
-        {
-            get
-            {
-                CreateParams handleParam = base.CreateParams;
-                handleParam.ExStyle |= 0x02000000;   // WS_EX_COMPOSITED       
-                return handleParam;
-            }
-        }
-
         string fileName = null;
         string archiveFolder = null;
 
@@ -42,6 +32,16 @@ namespace TextEditor
         public WebBrowser archiveExplorer = new WebBrowser { Dock = DockStyle.Fill };
         public TextBox textBox = new TextBox { Dock = DockStyle.Fill };
 
+        protected override CreateParams CreateParams
+        {
+            get
+            {
+                CreateParams handleParam = base.CreateParams;
+                handleParam.ExStyle |= 0x02000000;   // WS_EX_COMPOSITED       
+                return handleParam;
+            }
+        }
+
         public SourceForm()
         {
             InitializeComponent();
@@ -56,8 +56,6 @@ namespace TextEditor
             Size controlSize = control.Size;
             control.Dock = DockStyle.None;
             control.Size = controlSize;
-
-            Program.debugLog.Log(keyShift.ToString());
 
             int k = 1;
             if (e.Delta > 0) k = 1; else k = -1;
@@ -180,6 +178,10 @@ namespace TextEditor
                 // PictureBox поддерживает масштабирование
                 pictureBox.MouseWheel += new MouseEventHandler(this_MouseWheel);
 
+                // Логи PictureBox
+                pictureBox.SizeChanged += PictureBox_SizeChanged;
+                pictureBox.LocationChanged += PictureBox_LocationChanged;
+
                 // При наведении на PictureBox все остальные контролы становятся неактивными
                 if (анимацияPictureBoxToolStripMenuItem.Checked)
                 {
@@ -268,6 +270,16 @@ namespace TextEditor
             }
 
             toolStripStatusLabel1.Text = fileName;
+        }
+
+        private void PictureBox_LocationChanged(object sender, EventArgs e)
+        {
+            toolStripStatusLabel3.Text = $"{((PictureBox)sender).Location.ToString()}";
+        }
+
+        private void PictureBox_SizeChanged(object sender, EventArgs e)
+        {
+            toolStripStatusLabel3.Text = $"{((PictureBox)sender).Size.ToString()} ({((PictureBox)sender).Size.Width / ((PictureBox)sender).Image.Size.Width}x)";
         }
 
         private void Controls_BlackFalse(object sender, EventArgs e)

@@ -86,6 +86,7 @@
             this.toolStripStatusLabel2 = new System.Windows.Forms.ToolStripStatusLabel();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.panel1 = new System.Windows.Forms.Panel();
+            this.toolStripStatusLabel3 = new System.Windows.Forms.ToolStripStatusLabel();
             this.menuStrip.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -456,8 +457,6 @@
             // 
             // анимацияPictureBoxToolStripMenuItem
             // 
-            this.анимацияPictureBoxToolStripMenuItem.Checked = true;
-            this.анимацияPictureBoxToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.анимацияPictureBoxToolStripMenuItem.Name = "анимацияPictureBoxToolStripMenuItem";
             this.анимацияPictureBoxToolStripMenuItem.Size = new System.Drawing.Size(333, 22);
             this.анимацияPictureBoxToolStripMenuItem.Text = "Затемнение фона при наведении на PictureBox";
@@ -513,7 +512,8 @@
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel1,
-            this.toolStripStatusLabel2});
+            this.toolStripStatusLabel2,
+            this.toolStripStatusLabel3});
             this.statusStrip1.Location = new System.Drawing.Point(0, 428);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(800, 22);
@@ -547,6 +547,13 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(800, 404);
             this.panel1.TabIndex = 0;
+            // 
+            // toolStripStatusLabel3
+            // 
+            this.toolStripStatusLabel3.ForeColor = System.Drawing.Color.Blue;
+            this.toolStripStatusLabel3.Name = "toolStripStatusLabel3";
+            this.toolStripStatusLabel3.Size = new System.Drawing.Size(25, 17);
+            this.toolStripStatusLabel3.Text = "0x0";
             // 
             // SourceForm
             // 
@@ -633,6 +640,7 @@
         private System.Windows.Forms.ToolStripMenuItem debugLogToolStripMenuItem;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.ToolStripMenuItem анимацияPictureBoxToolStripMenuItem;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel3;
     }
 }
 

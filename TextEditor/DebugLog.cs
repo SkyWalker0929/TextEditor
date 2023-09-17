@@ -22,7 +22,7 @@ namespace TextEditor
 
         public void Log(string text)
         {
-            richTextBox1.Text += $"[{DateTime.Now.ToString()}]: {text}\n\r";
+            richTextBox1.Text += $"[{DateTime.Now.Date} {DateTime.Now.TimeOfDay.TotalMilliseconds}]: {text}\n\r";
             richTextBox1.Select(richTextBox1.Text.Length - 1, richTextBox1.Text.Length - 1);
             richTextBox1.ScrollToCaret();
 
@@ -38,6 +38,17 @@ namespace TextEditor
         private void timer1_Tick(object sender, EventArgs e)
         {
             this.Text = $"-LOGTIME:{DateTime.Now.ToString()};~~{DebugMessagesCount}";
+        }
+
+        private void DebugLog_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void DebugLog_Resize(object sender, EventArgs e)
+        {
+            richTextBox1.Size = new Size(this.Width - 40, this.Height - 90);
+            label1.Text = "ST_SIZEMODE=SIZEBOX";
         }
     }
 }
