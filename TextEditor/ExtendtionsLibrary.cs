@@ -10,7 +10,7 @@ using System.Runtime.Remoting.Lifetime;
 namespace TextEditor
 {
     [Serializable]
-    public class ExtendtionsLibrary
+    public class ExtensionLibrary
     {
         public List<string> pictures { get; set; }
         public List<string> text { get; set; }
@@ -18,7 +18,7 @@ namespace TextEditor
         public List<string> archive { get; set; }
     }
 
-    public enum ExtendtionsCategories
+    public enum ExtensionCategories
     {
         pictures,
         text,
@@ -27,72 +27,72 @@ namespace TextEditor
         none
     }
 
-    public class ExtendtionsManager
+    public class ExtensionManager
     {
-        public static ExtendtionsLibrary RemoveExtendtionFromExtendtionsLibrary(ExtendtionsLibrary extendtionsLibrary, string extendtion)
+        public static ExtensionLibrary RemoveExtensionFromExtensionLibrary(ExtensionLibrary ExtensionLibrary, string Extension)
         {
-            ExtendtionsLibrary _extendtionsLibrary = extendtionsLibrary;
+            ExtensionLibrary _ExtensionLibrary = ExtensionLibrary;
 
-            _extendtionsLibrary.pictures.Remove(extendtion);
-            _extendtionsLibrary.text.Remove(extendtion);
-            _extendtionsLibrary.video.Remove(extendtion);
+            _ExtensionLibrary.pictures.Remove(Extension);
+            _ExtensionLibrary.text.Remove(Extension);
+            _ExtensionLibrary.video.Remove(Extension);
 
-            return _extendtionsLibrary;
+            return _ExtensionLibrary;
         }
-        public static bool ExtendtionExist(ExtendtionsLibrary extendtionsLibrary, string extendtion)
+        public static bool ExtensionExist(ExtensionLibrary ExtensionLibrary, string Extension)
         {
-            foreach (string ext in extendtionsLibrary.pictures)
+            foreach (string ext in ExtensionLibrary.pictures)
             {
-                if (ext.Contains(extendtion)) return true;
+                if (ext.Contains(Extension)) return true;
             }
 
-            foreach (string ext in extendtionsLibrary.text)
+            foreach (string ext in ExtensionLibrary.text)
             {
-                if (ext.Contains(extendtion)) return true;
+                if (ext.Contains(Extension)) return true;
             }
 
-            foreach (string ext in extendtionsLibrary.video)
+            foreach (string ext in ExtensionLibrary.video)
             {
-                if (ext.Contains(extendtion)) return true;
+                if (ext.Contains(Extension)) return true;
             }
 
-            foreach (string ext in extendtionsLibrary.archive)
+            foreach (string ext in ExtensionLibrary.archive)
             {
-                if (ext.Contains(extendtion)) return true;
+                if (ext.Contains(Extension)) return true;
             }
 
             return false;
 
-            //return (extendtionsLibrary.pictures.Contains(extendtion)
-            //     && extendtionsLibrary.text.Contains(extendtion)
-            //     && extendtionsLibrary.video.Contains(extendtion));
+            //return (ExtensionLibrary.pictures.Contains(Extension)
+            //     && ExtensionLibrary.text.Contains(Extension)
+            //     && ExtensionLibrary.video.Contains(Extension));
         }
 
-        public static ExtendtionsCategories GetCategory(ExtendtionsLibrary extendtionsLibrary, string extention)
+        public static ExtensionCategories GetCategory(ExtensionLibrary ExtensionLibrary, string extention)
         {
-            if (extendtionsLibrary.pictures.Contains(extention))
-                return ExtendtionsCategories.pictures;
+            if (ExtensionLibrary.pictures.Contains(extention))
+                return ExtensionCategories.pictures;
 
-            if (extendtionsLibrary.text.Contains(extention))
-                return ExtendtionsCategories.text;
+            if (ExtensionLibrary.text.Contains(extention))
+                return ExtensionCategories.text;
 
-            if (extendtionsLibrary.video.Contains(extention))
-                return ExtendtionsCategories.video;
+            if (ExtensionLibrary.video.Contains(extention))
+                return ExtensionCategories.video;
 
-            if (extendtionsLibrary.archive.Contains(extention))
-                return ExtendtionsCategories.archive;
+            if (ExtensionLibrary.archive.Contains(extention))
+                return ExtensionCategories.archive;
 
-            return ExtendtionsCategories.none;
+            return ExtensionCategories.none;
         }
-        public static ExtendtionsLibrary GetExtendtionsLibraryFromFile(string filePath)
+        public static ExtensionLibrary GetExtensionLibraryFromFile(string filePath)
         {
-            return JsonSerializer.Deserialize<ExtendtionsLibrary>(File.ReadAllText(filePath));
+            return JsonSerializer.Deserialize<ExtensionLibrary>(File.ReadAllText(filePath));
         }
-        public static void WriteExtendtionsLibraryToFile(ExtendtionsLibrary extendtionsLibrary, string filePath)
+        public static void WriteExtensionLibraryToFile(ExtensionLibrary ExtensionLibrary, string filePath)
         {
             if (File.Exists(filePath))
             {
-                File.WriteAllText(filePath, JsonSerializer.Serialize(extendtionsLibrary));
+                File.WriteAllText(filePath, JsonSerializer.Serialize(ExtensionLibrary));
             } 
             else
             {

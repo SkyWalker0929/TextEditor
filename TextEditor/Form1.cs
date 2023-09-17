@@ -5,33 +5,87 @@ using System.Drawing;
 using System.IO;
 using System.IO.Compression;
 using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using SharpCompress;
-using SharpCompress.Archives;
-using SharpCompress.Common;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.ProgressBar;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
+using AxWMPLib;
 
 namespace TextEditor
 {
     public partial class SourceForm : Form
     {
         string fileName = null;
-
-        ExtendtionsLibrary currentExtendtionsLibrary;
-        ExtendtionsCategories currentExtendtionCategory = ExtendtionsCategories.none;
-
-        AxWMPLib.AxWindowsMediaPlayer windowsMediaPlayer = new AxWMPLib.AxWindowsMediaPlayer { Dock = DockStyle.Fill };
-        PictureBox pictureBox = new PictureBox();
-
-        WebBrowser archiveExplorer = new WebBrowser();
         string archiveFolder = null;
+
+        bool keyShift = false;
+
+        // Скорость прокрутки
+        int kScroll = 30;
+
+        // Библиотека расширений
+        ExtensionLibrary currentExtensionLibrary;
+        ExtensionCategories currentExtensionCategory = ExtensionCategories.none;
+
+        // Контролы нетекстовых расширений
+        public AxWindowsMediaPlayer windowsMediaPlayer = new AxWindowsMediaPlayer { Dock = DockStyle.Fill };
+        public PictureBox pictureBox = new PictureBox { Dock = DockStyle.Fill };
+        public WebBrowser archiveExplorer = new WebBrowser { Dock = DockStyle.Fill };
+        public TextBox textBox = new TextBox { Dock = DockStyle.Fill };
+
+        // Контролы разработки
+        DebugLog debugLog = new DebugLog();
 
         public SourceForm()
         {
             InitializeComponent();
+        }
+
+        void this_MouseWheel(object sender, MouseEventArgs e)
+        {
+            if (sender == null)
+                return;
+
+            Control control = sender as Control;
+            Size controlSize = control.Size;
+            control.Dock = DockStyle.None;
+            control.Size = controlSize;
+
+            debugLog.Log(keyShift.ToString());
+
+            int k = 1;
+            if (e.Delta > 0) k = 1; else k = -1;
+
+            if (Control.ModifierKeys == Keys.Shift)
+            {
+                control.Location = new Point(control.Location.X + k * kScroll, control.Location.Y);
+            }
+            else if (Control.ModifierKeys == Keys.Control)
+            {
+                ZoomInOut(k > 0 ? true : false, pictureBox);
+            }
+            else
+            {
+                control.Location = new Point(control.Location.X, control.Location.Y + k * kScroll);
+            }
+        }
+
+        private void ZoomInOut(bool zoom, Control zoomControl)
+        {
+            //Zoom ratio by which the images will be zoomed by default
+            int zoomRatio = 10;
+            //Set the zoomed width and height
+            int widthZoom = zoomControl.Width * zoomRatio / 100;
+            int heightZoom = zoomControl.Height * zoomRatio / 100;
+            //zoom = true --> zoom in
+            //zoom = false --> zoom out
+            if (!zoom)
+            {
+                widthZoom *= -1;
+                heightZoom *= -1;
+            }
+            //Add the width and height to the picture box dimensions
+            zoomControl.Width += widthZoom;
+            zoomControl.Height += heightZoom;
+
         }
 
         private void открытьToolStripMenuItem_Click(object sender, EventArgs e)
@@ -47,37 +101,37 @@ namespace TextEditor
         {
             fileName = filePath;
 
-            currentExtendtionsLibrary = ExtendtionsManager.GetExtendtionsLibraryFromFile($"C:\\Users\\{Environment.UserName}\\PlacNoteConfig.json");
-            if (ExtendtionsManager.ExtendtionExist(currentExtendtionsLibrary, Path.GetExtension(filePath)))
+            currentExtensionLibrary = ExtensionManager.GetExtensionLibraryFromFile($"C:\\Users\\{Environment.UserName}\\PlacNoteConfig.json");
+            if (ExtensionManager.ExtensionExist(currentExtensionLibrary, Path.GetExtension(filePath)))
             {
                 OpenFile(fileName);
             }
             else
             {
                 UEM uem = new UEM();
-                ExtendtionsCategories extendtionsCategory = uem.GetExtendtion(Path.GetExtension(filePath));
-                if (extendtionsCategory != ExtendtionsCategories.none)
+                ExtensionCategories ExtensionCategory = uem.GetExtension(Path.GetExtension(filePath));
+                if (ExtensionCategory != ExtensionCategories.none)
                 {
-                    if (extendtionsCategory == ExtendtionsCategories.pictures)
+                    if (ExtensionCategory == ExtensionCategories.pictures)
                     {
-                        currentExtendtionsLibrary.pictures.Add(Path.GetExtension(filePath));
+                        currentExtensionLibrary.pictures.Add(Path.GetExtension(filePath));
                     }
-                    else if (extendtionsCategory == ExtendtionsCategories.text)
+                    else if (ExtensionCategory == ExtensionCategories.text)
                     {
-                        currentExtendtionsLibrary.text.Add(Path.GetExtension(filePath));
+                        currentExtensionLibrary.text.Add(Path.GetExtension(filePath));
                     }
-                    else if (extendtionsCategory == ExtendtionsCategories.video)
+                    else if (ExtensionCategory == ExtensionCategories.video)
                     {
-                        currentExtendtionsLibrary.video.Add(Path.GetExtension(filePath));
+                        currentExtensionLibrary.video.Add(Path.GetExtension(filePath));
                     }
-                    else if (extendtionsCategory == ExtendtionsCategories.archive)
+                    else if (ExtensionCategory == ExtensionCategories.archive)
                     {
-                        currentExtendtionsLibrary.archive.Add(Path.GetExtension(filePath));
+                        currentExtensionLibrary.archive.Add(Path.GetExtension(filePath));
                     }
                 }
                 uem.Dispose();
 
-                ExtendtionsManager.WriteExtendtionsLibraryToFile(currentExtendtionsLibrary, $"C:\\Users\\{Environment.UserName}\\PlacNoteConfig.json");
+                ExtensionManager.WriteExtensionLibraryToFile(currentExtensionLibrary, $"C:\\Users\\{Environment.UserName}\\PlacNoteConfig.json");
 
                 OpenFile(fileName);
             }
@@ -87,31 +141,40 @@ namespace TextEditor
         {
             fileName = filePath;
             archiveExplorerToolStripMenuItem.Visible = false;
-            textBox.Controls.Clear();
+            panel1.Controls.Clear();
             EnableFields(true);
-            ExtendtionsCategories extendtionsCategories =
-                        ExtendtionsManager.GetCategory(currentExtendtionsLibrary, Path.GetExtension(filePath));
-            if (extendtionsCategories == ExtendtionsCategories.pictures)
+            ExtensionCategories ExtensionCategories =
+                        ExtensionManager.GetCategory(currentExtensionLibrary, Path.GetExtension(filePath));
+
+            if (ExtensionCategories == ExtensionCategories.pictures)
             {
                 pictureBox = new PictureBox { ErrorImage = Properties.Resources.logo, InitialImage = Properties.Resources.logo, BackColor = Color.Transparent, Dock = DockStyle.Fill, SizeMode = PictureBoxSizeMode.Zoom, Cursor = DefaultCursor };
 
-                textBox.Controls.Add(pictureBox);
+                panel1.Controls.Add(pictureBox);
                 pictureBox.ImageLocation = filePath;
-                pictureBox.LoadCompleted += PictureBox_LoadCompleted;
+                pictureBox.LoadCompleted += new System.ComponentModel.AsyncCompletedEventHandler(PictureBox_LoadCompleted);
+
+                // PictureBox поддерживает масштабирование
+                pictureBox.MouseWheel += new MouseEventHandler(this_MouseWheel);
+
+                // При наведении на PictureBox все остальные контролы становятся неактивными
+                pictureBox.MouseHover += Controls_EnabledFalse;
+                pictureBox.MouseLeave += Controls_EnabledTrue;
 
                 DisableTextFunctions(true);
             }
-            else if (extendtionsCategories == ExtendtionsCategories.text)
+            else if (ExtensionCategories == ExtensionCategories.text)
             {
                 textBox.Text = File.ReadAllText(fileName);
+                panel1.Controls.Add(textBox);
 
                 toolStripStatusLabel2.Text = $"-CC:{textBox.Text.Length}-S:{new System.IO.FileInfo(filePath).Length}B";
 
                 DisableTextFunctions(false);
             }
-            else if (extendtionsCategories == ExtendtionsCategories.video)
+            else if (ExtensionCategories == ExtensionCategories.video)
             {
-                textBox.Controls.Add(windowsMediaPlayer);
+                panel1.Controls.Add(windowsMediaPlayer);
 
                 windowsMediaPlayer.CreateControl();
                 windowsMediaPlayer.URL = filePath;
@@ -120,7 +183,7 @@ namespace TextEditor
 
                 DisableTextFunctions(true);
             }
-            else if (extendtionsCategories == ExtendtionsCategories.archive)
+            else if (ExtensionCategories == ExtensionCategories.archive)
             {
                 DisableTextFunctions(true);
                 clearTEMPAndExitToolStripMenuItem.Enabled = false;
@@ -130,7 +193,7 @@ namespace TextEditor
 
                 archiveExplorer = new WebBrowser { Dock = DockStyle.Fill };
                 archiveExplorer.Navigate(archiveDirectory);
-                textBox.Controls.Add(archiveExplorer);
+                panel1.Controls.Add(archiveExplorer);
 
                 Progress progress = new Progress { TopMost = true };
                 progress.mainLabel.Text = "Подготовка архива для быстрого редактирования...";
@@ -162,6 +225,18 @@ namespace TextEditor
             }
 
             toolStripStatusLabel1.Text = fileName;
+        }
+
+        private void Controls_EnabledFalse(object sender, EventArgs e)
+        {
+            debugLog.Log("menuStrip,statusStrip1,textBox :: Enabled = false");
+            menuStrip.Enabled = statusStrip1.Enabled = textBox.Enabled = false;
+        }
+
+        private void Controls_EnabledTrue(object sender, EventArgs e)
+        {
+            debugLog.Log("menuStrip,statusStrip1,textBox :: Enabled = true");
+            menuStrip.Enabled = statusStrip1.Enabled = textBox.Enabled = true;
         }
 
         private void WindowsMediaPlayer_StatusChange(object sender, EventArgs e)
@@ -356,13 +431,23 @@ namespace TextEditor
             строкаСостоянияToolStripMenuItem.Checked = !строкаСостоянияToolStripMenuItem.Checked;
         }
 
-        private void SourceForm_Load(object sender, EventArgs e)
+        private async void SourceForm_Load(object sender, EventArgs e)
         {
+            if (   !File.Exists("AxInterop.WMPLib.dll") 
+                || !File.Exists("Interop.WMPLib.dll")
+                || !File.Exists("SharpCompress.dll")
+                || !File.Exists("System.Text.Json.dll"))
+            {
+                Process.Start("PlacNoteRecovery.exe");
+                Environment.Exit(0);
+                return;
+            }
+
             DisableTextFunctions(true);
             if (!File.Exists($"C:\\Users\\{Environment.UserName}\\PlacNoteConfig.json"))
             {
                 File.Create($"C:\\Users\\{Environment.UserName}\\PlacNoteConfig.json").Dispose();
-                ExtendtionsLibrary extendtionsLibrary = new ExtendtionsLibrary {
+                ExtensionLibrary ExtensionLibrary = new ExtensionLibrary {
 
                     pictures = new List<string>(),
                     text = new List<string>(),
@@ -370,12 +455,12 @@ namespace TextEditor
                     archive = new List<string>(),
 
                 };
-                ExtendtionsManager.WriteExtendtionsLibraryToFile(extendtionsLibrary, $"C:\\Users\\{Environment.UserName}\\PlacNoteConfig.json");
-                currentExtendtionsLibrary = extendtionsLibrary;
+                ExtensionManager.WriteExtensionLibraryToFile(ExtensionLibrary, $"C:\\Users\\{Environment.UserName}\\PlacNoteConfig.json");
+                currentExtensionLibrary = ExtensionLibrary;
             }
             else
             {
-                currentExtendtionsLibrary = ExtendtionsManager.GetExtendtionsLibraryFromFile($"C:\\Users\\{Environment.UserName}\\PlacNoteConfig.json");
+                currentExtensionLibrary = ExtensionManager.GetExtensionLibraryFromFile($"C:\\Users\\{Environment.UserName}\\PlacNoteConfig.json");
             }
 
             if (Environment.GetCommandLineArgs().Length > 1)
@@ -385,14 +470,31 @@ namespace TextEditor
             }
             this.Show();
 
+            this.textBox.AllowDrop = true;
+            this.textBox.BackColor = System.Drawing.Color.White;
+            this.textBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.textBox.Cursor = System.Windows.Forms.Cursors.IBeam;
+            this.textBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.textBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.textBox.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.textBox.Location = new System.Drawing.Point(0, 24);
+            this.textBox.Multiline = true;
+            this.textBox.Name = "textBox";
+            this.textBox.Size = new System.Drawing.Size(800, 404);
+            this.textBox.TabIndex = 1;
+            this.textBox.DragDrop += new System.Windows.Forms.DragEventHandler(this.FDragDrop);
+            this.textBox.DragEnter += new System.Windows.Forms.DragEventHandler(this.FDragEnter);
+            this.textBox.DragLeave += new System.EventHandler(this.FDragLeave);
+
+            panel1.Controls.Add(textBox);
             textBox.BackColor = Color.FromArgb(150, 150, 255);
             FadeOutAnimaton();
         }
 
         private void открытьКакToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            currentExtendtionsLibrary = ExtendtionsManager.RemoveExtendtionFromExtendtionsLibrary(currentExtendtionsLibrary, Path.GetExtension(fileName));
-            ExtendtionsManager.WriteExtendtionsLibraryToFile(currentExtendtionsLibrary, $"C:\\Users\\{Environment.UserName}\\PlacNoteConfig.json");
+            currentExtensionLibrary = ExtensionManager.RemoveExtensionFromExtensionLibrary(currentExtensionLibrary, Path.GetExtension(fileName));
+            ExtensionManager.WriteExtensionLibraryToFile(currentExtensionLibrary, $"C:\\Users\\{Environment.UserName}\\PlacNoteConfig.json");
         }
 
         private void кнопкиWindowsMediaPlayerToolStripMenuItem_Click(object sender, EventArgs e)
@@ -490,7 +592,7 @@ namespace TextEditor
             toolStripStatusLabel2.Text = "0x0";
             archiveExplorerToolStripMenuItem.Visible = false;
             textBox.Text = null;
-            textBox.Controls.Clear();
+            panel1.Controls.Clear();
             fileName = null;
             toolStripStatusLabel1.Text = "Файл не выбран";
         }
@@ -565,7 +667,7 @@ namespace TextEditor
             });
         }
 
-        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Progress progress = new Progress { TopMost = true };
             progress.mainLabel.Text = "Сохранение архива...";
@@ -574,11 +676,40 @@ namespace TextEditor
             progress.Show();
             progress.Refresh();
 
-            File.Delete(fileName);
-            ZipFile.CreateFromDirectory(archiveFolder, fileName);
+            await Task.Run(() =>
+            {
+                File.Delete(fileName);
+                ZipFile.CreateFromDirectory(archiveFolder, fileName);
+            });
 
             progress.Hide();
             progress.Dispose();
+        }
+
+        private void SourceForm_Resize(object sender, EventArgs e)
+        {
+            ControlToTheCenter(pictureBox);
+        }
+
+        public void ControlToTheCenter(Control control)
+        {
+            control.Left = (this.ClientSize.Width - control.Width) / 2;
+            control.Top = (this.ClientSize.Height - control.Height) / 2;
+        }
+
+        private void SourceForm_KeyDown(object sender, KeyEventArgs e)
+        {
+
+        }
+
+        private void SourceForm_KeyUp(object sender, KeyEventArgs e)
+        {
+
+        }
+
+        private void debugLogToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

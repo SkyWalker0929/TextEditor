@@ -18,8 +18,8 @@ namespace TextEditor
             InitializeComponent();
         }
 
-        string currentExtendtion = null;
-        ExtendtionsCategories extendtionsCategories = ExtendtionsCategories.none;
+        string currentExtension = null;
+        ExtensionCategories ExtensionCategories = ExtensionCategories.none;
         bool done = false;
 
         private void Wait(double seconds)
@@ -31,37 +31,37 @@ namespace TextEditor
             }
         }
 
-        public ExtendtionsCategories GetExtendtion(string extendtion)
+        public ExtensionCategories GetExtension(string Extension)
         {
             this.ShowDialog();
 
-            currentExtendtion = extendtion;
+            currentExtension = Extension;
 
             while (!done)
             {
                 Wait(0.1);
             }
 
-            return extendtionsCategories;
+            return ExtensionCategories;
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            extendtionsCategories = ExtendtionsCategories.text;
+            ExtensionCategories = ExtensionCategories.text;
             done = true;
             this.Hide();
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            extendtionsCategories = ExtendtionsCategories.pictures;
+            ExtensionCategories = ExtensionCategories.pictures;
             done = true;
             this.Hide();
         }
 
         private void button3_Click(object sender, EventArgs e)
         {
-            extendtionsCategories = ExtendtionsCategories.video;
+            ExtensionCategories = ExtensionCategories.video;
             done = true;
             this.Hide();
         }
@@ -75,7 +75,7 @@ namespace TextEditor
         {
             if (checkBox1.Enabled)
             {
-                new FileAssociation().RegisterFileAssociation(currentExtendtion, "PlacNote.File", currentExtendtion, Assembly.GetExecutingAssembly().Location);
+                new FileAssociation().RegisterFileAssociation(currentExtension, "PlacNote.File", currentExtension, Assembly.GetExecutingAssembly().Location);
             }
         }
 
@@ -83,7 +83,7 @@ namespace TextEditor
         {
             if (e.CloseReason == CloseReason.UserClosing)
             {
-                extendtionsCategories = ExtendtionsCategories.none;
+                ExtensionCategories = ExtensionCategories.none;
                 done = true;
                 this.Hide();
             }
@@ -91,7 +91,7 @@ namespace TextEditor
 
         private void button4_Click_1(object sender, EventArgs e)
         {
-            extendtionsCategories = ExtendtionsCategories.archive;
+            ExtensionCategories = ExtensionCategories.archive;
             done = true;
             this.Hide();
         }
