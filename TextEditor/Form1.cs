@@ -8,18 +8,29 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using AxWMPLib;
+using SharpCompress.Common;
 
 namespace TextEditor
 {
     public partial class SourceForm : Form
     {
+        protected override CreateParams CreateParams
+        {
+            get
+            {
+                CreateParams handleParam = base.CreateParams;
+                handleParam.ExStyle |= 0x02000000;   // WS_EX_COMPOSITED       
+                return handleParam;
+            }
+        }
+
         string fileName = null;
         string archiveFolder = null;
 
         bool keyShift = false;
 
         // Скорость прокрутки
-        int kScroll = 30;
+        int kScroll = 50;
 
         // Библиотека расширений
         ExtensionLibrary currentExtensionLibrary;
@@ -30,9 +41,6 @@ namespace TextEditor
         public PictureBox pictureBox = new PictureBox { Dock = DockStyle.Fill };
         public WebBrowser archiveExplorer = new WebBrowser { Dock = DockStyle.Fill };
         public TextBox textBox = new TextBox { Dock = DockStyle.Fill };
-
-        // Контролы разработки
-        DebugLog debugLog = new DebugLog();
 
         public SourceForm()
         {
@@ -49,7 +57,7 @@ namespace TextEditor
             control.Dock = DockStyle.None;
             control.Size = controlSize;
 
-            debugLog.Log(keyShift.ToString());
+            Program.debugLog.Log(keyShift.ToString());
 
             int k = 1;
             if (e.Delta > 0) k = 1; else k = -1;
@@ -66,6 +74,8 @@ namespace TextEditor
             {
                 control.Location = new Point(control.Location.X, control.Location.Y + k * kScroll);
             }
+
+            this.Refresh();
         }
 
         private void ZoomInOut(bool zoom, Control zoomControl)
@@ -85,7 +95,6 @@ namespace TextEditor
             //Add the width and height to the picture box dimensions
             zoomControl.Width += widthZoom;
             zoomControl.Height += heightZoom;
-
         }
 
         private void открытьToolStripMenuItem_Click(object sender, EventArgs e)
@@ -139,32 +148,52 @@ namespace TextEditor
 
         public async void OpenFile(string filePath)
         {
+            Program.debugLog.Log($"Initializing the environment for the {filePath} file");
+
             fileName = filePath;
             archiveExplorerToolStripMenuItem.Visible = false;
+
             panel1.Controls.Clear();
+
             EnableFields(true);
+
             ExtensionCategories ExtensionCategories =
                         ExtensionManager.GetCategory(currentExtensionLibrary, Path.GetExtension(filePath));
 
+            Program.debugLog.Log($"Expansion Category: {ExtensionCategories.ToString()}");
+
             if (ExtensionCategories == ExtensionCategories.pictures)
             {
+                Program.debugLog.Log($"Loading image...");
+
                 pictureBox = new PictureBox { ErrorImage = Properties.Resources.logo, InitialImage = Properties.Resources.logo, BackColor = Color.Transparent, Dock = DockStyle.Fill, SizeMode = PictureBoxSizeMode.Zoom, Cursor = DefaultCursor };
 
                 panel1.Controls.Add(pictureBox);
                 pictureBox.ImageLocation = filePath;
                 pictureBox.LoadCompleted += new System.ComponentModel.AsyncCompletedEventHandler(PictureBox_LoadCompleted);
 
+                // PictureBox поддерживает перетаскивание
+                DragControl dragControl = new DragControl();
+                pictureBox.MouseDown += new MouseEventHandler(dragControl.Control_MouseDown);
+                pictureBox.MouseMove += new MouseEventHandler(dragControl.Control_MouseMove);
+
                 // PictureBox поддерживает масштабирование
                 pictureBox.MouseWheel += new MouseEventHandler(this_MouseWheel);
 
                 // При наведении на PictureBox все остальные контролы становятся неактивными
-                pictureBox.MouseHover += Controls_EnabledFalse;
-                pictureBox.MouseLeave += Controls_EnabledTrue;
+                if (анимацияPictureBoxToolStripMenuItem.Checked)
+                {
+                    pictureBox.MouseHover += Controls_BlackTrue;
+                    pictureBox.MouseLeave += Controls_BlackFalse;
+                }
 
                 DisableTextFunctions(true);
             }
             else if (ExtensionCategories == ExtensionCategories.text)
             {
+                Program.debugLog.Log($"Loading text...");
+
+                InitializeTextBox();
                 textBox.Text = File.ReadAllText(fileName);
                 panel1.Controls.Add(textBox);
 
@@ -174,7 +203,13 @@ namespace TextEditor
             }
             else if (ExtensionCategories == ExtensionCategories.video)
             {
+                Program.debugLog.Log($"Loading video...");
+
+                //USING WINDOWS MEDIA PLAYER
+
                 panel1.Controls.Add(windowsMediaPlayer);
+
+                Program.debugLog.Log($"Loading Windows Media Player...");
 
                 windowsMediaPlayer.CreateControl();
                 windowsMediaPlayer.URL = filePath;
@@ -185,10 +220,14 @@ namespace TextEditor
             }
             else if (ExtensionCategories == ExtensionCategories.archive)
             {
+                Program.debugLog.Log($"Loading archive...");
+
                 DisableTextFunctions(true);
                 clearTEMPAndExitToolStripMenuItem.Enabled = false;
 
                 string archiveDirectory = $"{Path.GetTempPath()}pnfile.{new Random().Next(1000000, 9999999)}";
+
+                Program.debugLog.Log($"Creating a directory: {archiveDirectory}");
                 Directory.CreateDirectory(archiveDirectory);
 
                 archiveExplorer = new WebBrowser { Dock = DockStyle.Fill };
@@ -204,6 +243,8 @@ namespace TextEditor
 
                 archiveExplorerToolStripMenuItem.Visible = true;
 
+                Program.debugLog.Log($"Unpacking the archive into a directory: {archiveDirectory}");
+
                 try
                 {
                     await Task.Run(() => {
@@ -214,6 +255,8 @@ namespace TextEditor
                 {
                     MessageBox.Show($"Во время инициализации произошла ошибка: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
+
+                Program.debugLog.Log($"Archive unpacking completed");
 
                 toolStripStatusLabel2.Text = $"-S:{new System.IO.FileInfo(filePath).Length}B";
 
@@ -227,16 +270,24 @@ namespace TextEditor
             toolStripStatusLabel1.Text = fileName;
         }
 
-        private void Controls_EnabledFalse(object sender, EventArgs e)
+        private void Controls_BlackFalse(object sender, EventArgs e)
         {
-            debugLog.Log("menuStrip,statusStrip1,textBox :: Enabled = false");
-            menuStrip.Enabled = statusStrip1.Enabled = textBox.Enabled = false;
+            Program.debugLog.Log("menuStrip,statusStrip1,textBox :: Black = false");
+            menuStrip.BackColor = SystemColors.Control;
+            statusStrip1.BackColor = SystemColors.Control;
+            BlackFadeOutAnimaton(panel1);
+            menuStrip.Visible = true;
+            statusStrip1.Visible = true;
         }
 
-        private void Controls_EnabledTrue(object sender, EventArgs e)
+        private void Controls_BlackTrue(object sender, EventArgs e)
         {
-            debugLog.Log("menuStrip,statusStrip1,textBox :: Enabled = true");
-            menuStrip.Enabled = statusStrip1.Enabled = textBox.Enabled = true;
+            Program.debugLog.Log("menuStrip,statusStrip1,textBox :: Black = true");
+            menuStrip.BackColor = Color.Gray;
+            statusStrip1.BackColor = Color.Gray;
+            BlackFadeInAnimaton(panel1);
+            //menuStrip.Visible = false;
+            //statusStrip1.Visible = false;
         }
 
         private void WindowsMediaPlayer_StatusChange(object sender, EventArgs e)
@@ -246,11 +297,15 @@ namespace TextEditor
 
         private void PictureBox_LoadCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
         {
+            Program.debugLog.Log("PictureBox load completed");
+
             toolStripStatusLabel2.Text = $"{pictureBox.Image.Width}x{pictureBox.Image.Height}@-PF:{pictureBox.Image.PixelFormat}-RF:{pictureBox.Image.RawFormat}";
         }
 
         public void DisableTextFunctions(bool yon)
         {
+            Program.debugLog.Log(yon ? "Text features disabled" : "Text features enabled");
+
             правкаToolStripMenuItem.Visible =
             форматToolStripMenuItem.Visible =
             сохранитьToolStripMenuItem.Visible = 
@@ -306,7 +361,9 @@ namespace TextEditor
 
         private void EnableFields(bool enable)
         {
-             сохранитьToolStripMenuItem.Enabled = удалитьФайлToolStripMenuItem.Enabled = enable;
+            Program.debugLog.Log($"EnableFields: {enable}");
+
+            сохранитьToolStripMenuItem.Enabled = удалитьФайлToolStripMenuItem.Enabled = enable;
         }
 
         private void новоеОкноToolStripMenuItem_Click(object sender, EventArgs e)
@@ -433,6 +490,9 @@ namespace TextEditor
 
         private async void SourceForm_Load(object sender, EventArgs e)
         {
+            Program.debugLog.Log("Initialization...");
+            Program.debugLog.Log("Checking dependencies...");
+
             if (   !File.Exists("AxInterop.WMPLib.dll") 
                 || !File.Exists("Interop.WMPLib.dll")
                 || !File.Exists("SharpCompress.dll")
@@ -446,6 +506,8 @@ namespace TextEditor
             DisableTextFunctions(true);
             if (!File.Exists($"C:\\Users\\{Environment.UserName}\\PlacNoteConfig.json"))
             {
+                Program.debugLog.Log("Creating an extension collection...");
+
                 File.Create($"C:\\Users\\{Environment.UserName}\\PlacNoteConfig.json").Dispose();
                 ExtensionLibrary ExtensionLibrary = new ExtensionLibrary {
 
@@ -460,8 +522,12 @@ namespace TextEditor
             }
             else
             {
+                Program.debugLog.Log("Loading a collection of extensions...");
+
                 currentExtensionLibrary = ExtensionManager.GetExtensionLibraryFromFile($"C:\\Users\\{Environment.UserName}\\PlacNoteConfig.json");
             }
+
+            Program.debugLog.Log("Reading arguments...");
 
             if (Environment.GetCommandLineArgs().Length > 1)
             {
@@ -470,7 +536,23 @@ namespace TextEditor
             }
             this.Show();
 
-            this.textBox.AllowDrop = true;
+            this.panel1.AllowDrop = true;
+            this.panel1.DragDrop += new System.Windows.Forms.DragEventHandler(this.FDragDrop);
+            this.panel1.DragEnter += new System.Windows.Forms.DragEventHandler(this.FDragEnter);
+            this.panel1.DragLeave += new System.EventHandler(this.FDragLeave);
+
+            InitializeTextBox();
+            panel1.Controls.Add(textBox);
+            panel1.BackColor = Color.FromArgb(150, 150, 255);
+            FadeOutAnimaton(panel1);
+        }
+
+        public TextBox InitializeTextBox()
+        {
+            this.textBox = new TextBox();
+
+            this.textBox.ScrollBars = ScrollBars.Both;
+            this.textBox.Dock = DockStyle.Fill;
             this.textBox.BackColor = System.Drawing.Color.White;
             this.textBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.textBox.Cursor = System.Windows.Forms.Cursors.IBeam;
@@ -482,13 +564,8 @@ namespace TextEditor
             this.textBox.Name = "textBox";
             this.textBox.Size = new System.Drawing.Size(800, 404);
             this.textBox.TabIndex = 1;
-            this.textBox.DragDrop += new System.Windows.Forms.DragEventHandler(this.FDragDrop);
-            this.textBox.DragEnter += new System.Windows.Forms.DragEventHandler(this.FDragEnter);
-            this.textBox.DragLeave += new System.EventHandler(this.FDragLeave);
 
-            panel1.Controls.Add(textBox);
-            textBox.BackColor = Color.FromArgb(150, 150, 255);
-            FadeOutAnimaton();
+            return textBox;
         }
 
         private void открытьКакToolStripMenuItem_Click(object sender, EventArgs e)
@@ -592,7 +669,9 @@ namespace TextEditor
             toolStripStatusLabel2.Text = "0x0";
             archiveExplorerToolStripMenuItem.Visible = false;
             textBox.Text = null;
+
             panel1.Controls.Clear();
+
             fileName = null;
             toolStripStatusLabel1.Text = "Файл не выбран";
         }
@@ -617,19 +696,19 @@ namespace TextEditor
                 }
             }
 
-            FadeOutAnimaton();
+            FadeOutAnimaton((Control)sender);
         }
 
         private async void FDragEnter(object sender, DragEventArgs e)
         {
             e.Effect = DragDropEffects.Copy;
 
-            FadeInAnimaton();
+            FadeInAnimaton((Control)sender);
         }
 
         private async void FDragLeave(object sender, EventArgs e)
         {
-            FadeOutAnimaton();
+            FadeOutAnimaton((Control)sender);
         }
         private void Wait(double seconds)
         {
@@ -641,28 +720,53 @@ namespace TextEditor
         }
 
         int animationID = 0;
-        public async void FadeInAnimaton()
+        public async void FadeInAnimaton(Control control)
         {
             await Task.Run(() => {
                 int localAnimationID = animationID = new Random().Next(1000000, 9999999);
-                for (int i = textBox.BackColor.R; animationID == localAnimationID && i >= 150; i -= 5)
+                for (int i = control.BackColor.R; animationID == localAnimationID && i >= 150; i -= 5)
                 {
-                    textBox.BackColor = Color.FromArgb(i, i, 255);
+                    control.BackColor = Color.FromArgb(i, i, 255);
                     Wait(0.001);
                     this.Refresh();
                 }
             });
         }
 
-        public async void FadeOutAnimaton()
+        public async void FadeOutAnimaton(Control control)
         {
             await Task.Run(() => {
                 int localAnimationID = animationID = new Random().Next(1000000, 9999999);
-                for (int i = textBox.BackColor.R; animationID == localAnimationID && i <= 255; i += 5)
+                for (int i = control.BackColor.R; animationID == localAnimationID && i <= 255; i += 5)
                 {
-                    textBox.BackColor = Color.FromArgb(i, i, 255);
+                    control.BackColor = Color.FromArgb(i, i, 255);
                     Wait(0.001);
                     this.Refresh();
+                }
+            });
+        }
+
+        public async void BlackFadeInAnimaton(Control control)
+        {
+            await Task.Run(() => {
+                int localAnimationID = animationID = new Random().Next(1000000, 9999999);
+                for (int i = control.BackColor.R; animationID == localAnimationID && i >= 0; i -= 5)
+                {
+                    control.BackColor = Color.FromArgb(i, i, i);
+                    Wait(0.001);
+                    //this.Refresh();
+                }
+            });
+        }
+        public async void BlackFadeOutAnimaton(Control control)
+        {
+            await Task.Run(() => {
+                int localAnimationID = animationID = new Random().Next(1000000, 9999999);
+                for (int i = control.BackColor.R; animationID == localAnimationID && i <= 255; i += 5)
+                {
+                    control.BackColor = Color.FromArgb(i, i, i);
+                    Wait(0.001);
+                    //this.Refresh();
                 }
             });
         }
@@ -709,7 +813,15 @@ namespace TextEditor
 
         private void debugLogToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            ToolStripMenuItem toolStripMenuItem = (ToolStripMenuItem)sender;
+            toolStripMenuItem.Checked = !toolStripMenuItem.Checked;
 
+            if (toolStripMenuItem.Checked) Program.debugLog.Show(); else Program.debugLog.Hide();
+        }
+
+        private void анимацияPictureBoxToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ((ToolStripMenuItem)sender).Checked = !((ToolStripMenuItem)sender).Checked;
         }
     }
 }

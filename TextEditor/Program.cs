@@ -12,6 +12,8 @@ namespace TextEditor
 {
     internal static class Program
     {
+        public static DebugLog debugLog = null;
+
         /// <summary>
         /// Главная точка входа для приложения.
         /// </summary>
@@ -24,6 +26,9 @@ namespace TextEditor
             {
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
+
+                debugLog = new DebugLog();
+
                 Application.Run(new SourceForm());
             }
             catch (Exception ex)
