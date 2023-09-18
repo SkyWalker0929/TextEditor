@@ -93,9 +93,12 @@
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.richTextBox1);
             this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "DebugLog";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "DebugLog";
             this.TopMost = true;
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.DebugLog_FormClosing);
             this.Load += new System.EventHandler(this.DebugLog_Load);
             this.Resize += new System.EventHandler(this.DebugLog_Resize);
             this.panel1.ResumeLayout(false);
@@ -105,9 +108,9 @@
 
         #endregion
         public System.Windows.Forms.RichTextBox richTextBox1;
-        private System.Windows.Forms.Timer timer1;
-        private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Button button1;
+        public System.Windows.Forms.Timer timer1;
+        public System.Windows.Forms.Panel panel1;
+        public System.Windows.Forms.Label label1;
+        public System.Windows.Forms.Button button1;
     }
 }

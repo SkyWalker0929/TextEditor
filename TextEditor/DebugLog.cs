@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Security.Policy;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -28,6 +29,16 @@ namespace TextEditor
 
             DebugMessagesCount++;
         }
+        public void CriticalErrorLog(string text)
+        {
+            label1.Text = "Обнаружена критическая ошибка. Выполнение программы приостановлено.";
+            button1.Enabled = false;
+            ControlBox = true;
+
+            Log(text);
+
+            this.ShowDialog();
+        }
 
         private void button1_Click(object sender, EventArgs e)
         {
@@ -49,6 +60,15 @@ namespace TextEditor
         {
             richTextBox1.Size = new Size(this.Width - 40, this.Height - 90);
             label1.Text = "ST_SIZEMODE=SIZEBOX";
+        }
+
+        private void DebugLog_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (e.CloseReason == CloseReason.UserClosing)
+            {
+                e.Cancel = true;
+                this.Hide();
+            }
         }
     }
 }

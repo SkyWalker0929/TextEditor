@@ -93,6 +93,16 @@ namespace TextEditor.Properties {
         /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap icons8_ошибка_96 {
+            get {
+                object obj = ResourceManager.GetObject("icons8-ошибка-96", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap icons8_песочные_часы {
             get {
                 object obj = ResourceManager.GetObject("icons8-песочные-часы", resourceCulture);

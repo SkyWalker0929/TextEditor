@@ -120,4 +120,7 @@
   <data name="label2.Text" xml:space="preserve">
     <value>Вы можете расширить функционал программы подключив сторонние библиотеки. Библиотеки могут как расширить функционал, так и сузить его, допустим, снести вашу винду. Подключайте сторонние библиотеки ТОЛЬКО с проверенных источников и ТОЛЬКО на свой страх и риск.</value>
   </data>
+  <metadata name="timer1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 17</value>
+  </metadata>
 </root>

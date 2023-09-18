@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -517,6 +518,24 @@ namespace TextEditor
                 return;
             }
 
+            Program.debugLog.Log("Load dependencies...");
+
+            if (Directory.Exists("mods"))
+            {
+                DirectoryInfo directoryInfo = new DirectoryInfo("mods");
+                foreach (FileInfo file in directoryInfo.GetFiles())
+                {
+                    try
+                    {
+                        Assembly.Load(file.FullName);
+                    }
+                    catch (Exception ex)
+                    {
+                        Program.debugLog.CriticalErrorLog($"[ERROR 534]: {ex.Message}\r\n\nВозможное решение: Удалите библиотеку {file.FullName}");
+                    }
+                }
+            }
+
             DisableTextFunctions(true);
             if (!File.Exists($"C:\\Users\\{Environment.UserName}\\PlacNoteConfig.json"))
             {
@@ -874,7 +893,7 @@ namespace TextEditor
 
         private void модыToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Program.modsManager.ShowDialog();
+            Program.modsManager.Show();
         }
     }
 }
